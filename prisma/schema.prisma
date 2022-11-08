@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Artist {
+  id       Int     @id @default(autoincrement())
+  fullName String  @map("full_name") @db.VarChar(255)
+  imageURL String? @map("image_url") @db.VarChar(255)
+  IMDBCode String  @unique(map: "imdb_code") @map("imdb_code") @db.Char(7)
+
+  @@map("artists")
+}
+
+model MovieCast {
+  id            Int    @id @default(autoincrement())
+  movieId       Int    @map("movie_id")
+  artistId      Int    @map("artist_id")
+  characterName String @map("character_name") @db.VarChar(255)
+
+  @@map("movie_cast_mapping")
+}
+
+model MovieGenre {
+  id      Int @id @default(autoincrement())
+  movieId Int @map("movie_id")
+  genreId Int @map("genre_id")
+
+  @@map("movie_genre_mapping")
+}
+
+model Genre {
+  id   Int               @id @default(autoincrement())
+  type movie_genres_type
+
+  @@map("movie_genres")
+}
+
+model MovieImage {
+  id           Int                        @id @default(autoincrement())
+  movieId      Int                        @map("movie_id")
+  image        String                     @db.Text
+  imageQuality movie_images_image_quality @map("image_quality")
+
+  @@map("movie_images")
+}
+
+model Poster {
+  id          Int       @id @default(autoincrement())
+  movieId     Int       @map("movie_id")
+  background  String    @db.VarChar(255)
+  smallCover  String    @map("small_cover") @db.VarChar(255)
+  mediumCover String    @map("medium_cover") @db.VarChar(255)
+  largeCover  String    @map("large_cover") @db.VarChar(255)
+  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@map("movie_posters")
+}
+
+model Torrent {
+  id        Int       @id @default(autoincrement())
+  movieId   Int       @map("movie_id")
+  hash      String    @db.Text
+  quality   String    @db.VarChar(20)
+  type      String    @db.VarChar(20)
+  seeds     Int
+  peers     Int
+  size      BigInt    @map("size_bytes")
+  createdAt DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@map("movie_torrents")
+}
+
+model Movie {
+  id           Int            @id @default(autoincrement())
+  IMDBCode     String         @map("imdb_code") @db.Char(9)
+  trailerCode  String         @map("yt_trailer_code") @db.Char(11)
+  title        String         @db.VarChar(255)
+  releasedRear Int            @map("released_year") @db.Year
+  rating       Decimal        @db.Decimal(2, 1)
+  language     String         @db.VarChar(10)
+  status       movies_status? @default(released)
+  runtime      Int            @map("runtime_in_minutes")
+  createdAt    DateTime?      @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@map("movies")
+}
+
+enum movie_genres_type {
+  action
+  comedy
+  horror
+  animation
+  drama
+  mystery
+  crime
+  fantasy
+  adventure
+  superhero
+  sci_fi      @map("sci-fi")
+  thriller
+  romance
+  family
+  western
+  history
+  musical
+  biography
+  war
+  documentary
+  sport
+  film_noir   @map("film-noir")
+  news
+  game_show   @map("game-show")
+  music
+  reality_tv  @map("reality-tv")
+  talk_show   @map("talk-show")
+}
+
+enum movie_images_image_quality {
+  medium
+  large
+}
+
+enum movies_status {
+  released
+  upcoming
+}
